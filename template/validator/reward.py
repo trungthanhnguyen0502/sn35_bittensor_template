@@ -56,9 +56,9 @@ def get_rewards(
     """
     selected_hotkey = os.getenv("SELECTED_MINER_HOTKEY")
     
-    if not selected_hotkey:
-        bt.logging.warning("SELECTED_MINER_HOTKEY not set, giving rewards to all miners")
-        return np.array([reward(query, response) for response in responses])
+    # if not selected_hotkey:
+    #     bt.logging.warning("SELECTED_MINER_HOTKEY not set, giving rewards to all miners")
+    #     return np.array([reward(query, response) for response in responses])
     
     # Find the UID of the selected miner
     selected_uid = None
@@ -69,7 +69,8 @@ def get_rewards(
     
     if selected_uid is None:
         bt.logging.warning(f"Selected miner with hotkey {selected_hotkey} not found, giving rewards to all miners")
-        return np.array([reward(query, response) for response in responses])
+        # return np.array([reward(query, response) for response in responses])
+        raise ValueError(f"Selected miner with hotkey {selected_hotkey} not found")
     
     # Initialize rewards array with zeros
     rewards = np.zeros(len(responses))
@@ -77,9 +78,8 @@ def get_rewards(
     # Only give reward to the selected miner if it's in the queried miners
     for i, uid in enumerate(miner_uids):
         if uid == selected_uid:
-            rewards[i] = reward(query, responses[i])
+            # rewards[i] = reward(query, responses[i])
+            rewards[i] = 1.0
             bt.logging.info(f"Giving reward {rewards[i]} to selected miner UID {uid}")
-        else:
-            bt.logging.debug(f"Giving 0 reward to non-selected miner UID {uid}")
     
     return rewards

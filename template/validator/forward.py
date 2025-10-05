@@ -44,29 +44,8 @@ async def forward(self):
         miner_uids = np.array([selected_miner_uid])
         bt.logging.info(f"Querying selected miner with UID: {selected_miner_uid}")
     else:
-        # Fallback to random selection if no selected miner is available
-        bt.logging.warning("No selected miner available, falling back to random selection")
-        miner_uids = get_random_uids(self, k=self.config.neuron.sample_size)
+        raise ValueError("No selected miner available")
 
-    # The dendrite client queries the network.
-    responses = await self.dendrite(
-        # Send the query to selected miner axons in the network.
-        axons=[self.metagraph.axons[uid] for uid in miner_uids],
-        # Construct a dummy query. This simply contains a single integer.
-        synapse=Dummy(dummy_input=self.step),
-        # All responses have the deserialize function called on them before returning.
-        # You are encouraged to define your own deserialization function.
-        deserialize=True,
-    )
-
-    # Log the results for monitoring purposes.
-    bt.logging.info(f"Received responses: {responses}")
-
-    # TODO(developer): Define how the validator scores responses.
-    # Adjust the scores based on responses from miners.
-    rewards = get_rewards(self, query=self.step, responses=responses, miner_uids=miner_uids)
-
-    bt.logging.info(f"Scored responses: {rewards}")
-    # Update the scores based on the rewards. You may want to define your own update_scores function for custom behavior.
+    rewards = [1.0] * len(miner_uids)
     self.update_scores(rewards, miner_uids)
     time.sleep(5)
